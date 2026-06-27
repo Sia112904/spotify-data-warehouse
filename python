@@ -1,0 +1,48 @@
+import os
+import json
+from dotenv import load_dotenv
+
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+
+load_dotenv()
+
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
+    client_id=os.getenv("SPOTIFY_CLIENT_ID"),
+    client_secret=os.getenv("SPOTIFY_CLIENT_SECRET"),
+    redirect_uri="http://127.0.0.1:8888/callback",
+    scope="playlist-read-private playlist-read-collaborative"
+))
+
+# -----------------------------
+# SAFE PUBLIC PLAYLIST (USER-CREATED, ALWAYS ACCESSIBLE)
+# -----------------------------
+playlist_id = "5ABHKGoOzxkaa28ttQV9sE"  # Spotify Global Top 50 (stable 
+version)
+
+results = sp.playlist_tracks(playlist_id)
+
+tracks = []
+
+for item in results["items"]:
+    track = item["track"]
+
+    if track is None:
+        continue
+
+    tracks.append({
+        "track_id": track["id"],
+        "track_name": track["name"],
+        "artist_name": track["artists"][0]["name"],
+        "album_name": track["album"]["name"],
+        "popularity": track["popularity"],
+        "duration_ms": track["duration_ms"],
+        "release_date": track["album"]["release_date"]
+    })
+
+os.makedirs("data/raw", exist_ok=True)
+
+with open("data/raw/tracks_raw.json", "w") as f:
+    json.dump(tracks, f, indent=4)
+
+print(f"Saved {len(tracks)} tracks")

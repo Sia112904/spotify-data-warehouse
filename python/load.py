@@ -6,9 +6,15 @@ from sqlalchemy import create_engine, text
 # -----------------------------
 # PostgreSQL Connection
 # -----------------------------
+from getpass import getpass
+from urllib.parse import quote_plus
+
+password = getpass("Enter your PostgreSQL password: ")
+encoded_password = quote_plus(password)
+
 engine = create_engine(
     
-"postgresql+psycopg2://postgres:Mianbao_Pang_2044@localhost:5432/spotify_dw"
+f"postgresql+psycopg2://postgres:{encoded_password}@localhost:5432/spotify_dw"
 )
 
 # -----------------------------
